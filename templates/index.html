@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bridge</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <script src="/static/bootstrap/js/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        .text-primary {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body><div class="container">
+    <br>
+    <form method="get" action="/problem" target="_blank">
+        <div class="input-group">
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-plus"></span>
+                &nbsp;做题
+            </span>
+            <input type="number" name="probid" placeholder="题号" class="form-control" autofocus required>
+            <span class="input-group-btn">
+                <button class="btn btn-primary" type="submit">查看题目</button>
+            </span>
+        </div>
+    </form>
+    <br>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>提交时间</th>
+                <th>Submission ID</th>
+                <th>用户名</th>
+                <th>题号</th>
+                <th>状态</th>
+                <th>代码长度</th>
+            </tr>
+        </thead>
+        <tbody>
+            % for submit in submits:
+                <tr onclick="location.href='/detail/${submit['subid']|u}'">
+                    <td>${submit['time']|h}</td>
+                    <td>${submit['hustid']|h}</td>
+                    <td class="${'text-primary' if submit['username']==username else ''}">${submit['username']|h}</td>
+                    <td>${submit['probid']|h}</td>
+                    <td>${submit['status']|h}</td>
+                    <td>${len(submit['source'])} 字节， ${submit['source'].count('\n')+1} 行</td>
+                </tr>
+            % endfor
+        </tbody>
+    </table>
+    <br>
+    <span class="pull-right">
+        <span class="glyphicon glyphicon-user"></span>&nbsp;${username|h}&nbsp;
+        <a href="/logout" class="btn btn-default">注销</a>
+    </span>
+</div></body>
+</html>

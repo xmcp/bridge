@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullheight">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>查看问题 #${probid|h} - Bridge</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <script src="/static/bootstrap/js/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        .hust-html>center:first-child>a {
+            display: none;
+        }
+        .fullheight {
+            height: 100%;
+        }
+    </style>
+    <script>
+        function submit() {
+            $('#submit-source').val(editor.getValue());
+            $('#submit-form').submit();
+        }
+        $(function() {
+            $('img').error(function(e) {
+                var url=$(e.target).attr('src');
+                if(url.indexOf('/')===0)
+                    e.target.src='http://www.lydsy.com'+url;
+                else
+                    e.target.src='http://www.lydsy.com/JudgeOnline/'+url;
+            });
+        });
+    </script>
+</head>
+<body class="fullheight"><div class="container fullheight">
+    <div class="col-lg-6 fullheight" style="overflow: auto;">
+        <div class="hust-html" style="padding-bottom: 30%">${text}</div>
+    </div>
+    <div class="col-lg-6 fullheight">
+        <div class="panel panel-default" style="margin: 20px 0 20px 0">
+            <div class="panel-heading">提交到 ${probid|h}</div>
+            <div class="panel-body">
+                <pre id="editor"></pre>
+                <button type="button" class="btn btn-primary" style="width: 100%" onclick="submit()">提交代码</button>
+                <form method="post" action="/submit" id="submit-form" style="display: none">
+                    <input type="hidden" name="probid" value="${probid}">
+                    <input type="hidden" name="source" id="submit-source">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/ace/ext-language_tools.js"></script>
+    <script>
+        ace.require("ace/ext/language_tools");
+        var editor=ace.edit("editor");
+        editor.setTheme("ace/theme/xcode");
+        editor.session.setMode("ace/mode/c_cpp");
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableSnippets: false,
+            enableLiveAutocompletion: false
+        });
+        editor.setShowPrintMargin(false);
+        function resize_editor() {
+            $('#editor').height($('body').height()-200);
+        }
+        resize_editor();
+        $(window).on('resize',resize_editor);
+    </script>
+</div></body>
+</html>

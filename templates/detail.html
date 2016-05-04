@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>查看提交 #${hustid|h} - Bridge</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <script src="/static/bootstrap/js/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body><div class="container">
+    <br>
+    <div>
+        <a href="/"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;返回</a>&nbsp;
+        <ol class="breadcrumb" style="display: inline-block;">
+            <li>题号 <code>${probid|h}</code></li>
+            <li>提交者 <code>${username|h}</code></li>
+            <li>状态 <code>${status|h}</code>&nbsp;<a href="/fetch/${hustid|u}" class="btn btn-link">
+                <span class="glyphicon glyphicon-refresh"></span>
+            </a></li>
+        </ol>
+    </div>
+    <div id="highlighter">${source|h}</div>
+
+    <script src="/static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/ace/ext-static_highlight.js"></script>
+    <script>
+        var highlight=ace.require("ace/ext/static_highlight");
+        highlight(document.getElementById('highlighter'), {
+            mode: "ace/mode/c_cpp",
+            theme: "ace/theme/xcode",
+            showGutter: 1,
+            trim: false,
+            startLineNumber: 1
+        });
+        function resize_editor() {
+            $('#editor').height($('body').height()-200);
+        }
+        resize_editor();
+        $(window).on('resize',resize_editor);
+    </script>
+</div></body>
+</html>
