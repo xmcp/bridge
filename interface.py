@@ -69,32 +69,6 @@ class Hust:
                 lambda x:x.name=='tr' and ((not x.has_attr('class')) or x['class']!=['toprow']) and x.contents[1].text==self.username
             ).contents[0].text)
 
-    def _proc(s):
-        if '编译错' in s:
-            return 'Compile Error'
-        elif '答案错' in s:
-            return 'Wrong Answer'
-        elif '格式' in s:
-            return 'Presentation Error'
-        elif '时间' in s:
-            return 'Time Limit Exceeded'
-        elif '内存' in s:
-            return 'Memory Limit Exceeded'
-        elif '输出' in s:
-            return 'Output Limit Exceeded'
-        elif '正确' in s:
-            return 'Accepted'
-        elif '运行错' in s:
-            return 'Runtime Error'
-        elif '等' in s:
-            return 'Waiting'
-        elif '中' in s:
-            return 'Compiling'
-        elif '运行并' in s:
-            return 'Running'
-        else:
-            raise RuntimeError('unsupported status')
-
     def get_status(self,source):
         """ Extract status message in source code.
 

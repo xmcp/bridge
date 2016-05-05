@@ -1,4 +1,31 @@
 <!DOCTYPE html>
+<%!
+    def proc(s):
+        if '编译错' in s:
+            return 'CE'
+        elif '答案错' in s:
+            return 'WA'
+        elif '格式' in s:
+            return 'PE'
+        elif '时间' in s:
+            return 'TLE'
+        elif '内存' in s:
+            return 'MLE'
+        elif '输出' in s:
+            return 'OLE'
+        elif '正确' in s:
+            return 'AC'
+        elif '运行错' in s:
+            return 'RE'
+        elif '等' in s:
+            return 'WAIT'
+        elif '中' in s:
+            return 'COMP'
+        elif '运行并' in s:
+            return 'RUNN'
+        else:
+            return 'WTF'
+%>
 <html lang="zh-cn">
 <head>
     <meta charset="UTF-8">
@@ -15,6 +42,11 @@
         .text-primary {
             font-weight: bold;
         }
+        .result-AC {color: green;}
+        .result-WA, .result-RE, .result-PE {color: red;}
+        .result-TLE, .result-MLE, .result-OLE {color: purple;}
+        .result-CE {color: #048;}
+        .result-WAIT, .result-COMP, .result-RUNN, .result-WTF {color: black;}
     </style>
 </head>
 <body><div class="container">
@@ -50,7 +82,7 @@
                     <td>${submit['hustid']|h}</td>
                     <td class="${'text-primary' if submit['username']==username else ''}">${submit['username']|h}</td>
                     <td>${submit['probid']|h}</td>
-                    <td>${submit['status']|h}</td>
+                    <td class="result-${proc(submit['status'])}">${submit['status']|h}</td>
                     <td>${len(submit['source'])} 字节， ${submit['source'].count('\n')+1} 行</td>
                 </tr>
             % endfor
@@ -59,7 +91,8 @@
     <br>
     <span class="pull-right">
         <span class="glyphicon glyphicon-user"></span>&nbsp;${username|h}&nbsp;
-        <a href="/logout" class="btn btn-default">注销</a>
+        <a href="/passwd" class="btn btn-link">修改密码</a>
+        <a href="/logout" class="btn btn-link">注销</a>
     </span>
 </div></body>
 </html>

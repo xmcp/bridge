@@ -141,12 +141,34 @@ class Bridge:
             else:
                 return 'No such submission in database.'
 
+    @cherrypy.expose()
+    def passwd(self,uid=None,oldpw=None,newpw=None):
+        auth()
+        username=cherrypy.session['username']
+        uid=cherrypy.session['uid']
+        if not uid or not oldpw or not newpw:
+            return lookup.get_template('passwd.html').render(username=username,error=None)
+
+        with connect() as db:
+            cur=db.cursor()
+            cur.execute('select passhash from users where id=?',[uid])
+            res=cur.fetchone()
+            if not res:
+                return lookup.get_template('passwd.html').render(username=username,error='用户不存在')
+            elif res[0]!=const.hashed(username,oldpw):
+                return lookup.get_template('passwd.html').render(username=username,error='原密码错误')
+            else:
+                cur.execute('update users set passhash=? where id=?',[const.hashed(username,newpw),uid])
+                db.commit()
+                raise cherrypy.InternalRedirect('/logout')
+
 cherrypy.quickstart(Bridge(),'/',{
     'global': {
         'engine.autoreload.on':False,
         # 'request.show_tracebacks': False,
         'server.socket_host':'0.0.0.0',
         'server.socket_port':12450,
+        'server.thread_pool':10,
         # 'error_page.404': lambda status,message,traceback,version:err(status),
     },
     '/': {
