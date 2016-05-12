@@ -22,14 +22,16 @@ class Bridge:
         auth()
         with connect() as db:
             cur=db.cursor()
-            cur.execute('select time,uid,hustid,probid,status,id,source from submits order by time desc')
+            cur.execute(
+                'select time,uid,hustid,probid,status,submits.id,source,username from submits '
+                'join users on submits.uid=users.id order by time desc'
+            )
             result=cur.fetchall()
             new=[]
             for res in result:
-                cur.execute('select username from users where id=?',[res[1]])
                 new.append({
                     'time': res[0],
-                    'username': (cur.fetchone() or ['???'])[0],
+                    'username': res[7],
                     'hustid': res[2],
                     'probid': res[3],
                     'status': res[4],
