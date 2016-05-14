@@ -2,4 +2,4 @@
 *.pyc
 __pycacche__/
 db.sqlite3
-const.py
+secret.py

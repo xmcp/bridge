@@ -1,0 +1,6 @@
+--allow-external mysql-connector-python
+cherrypy
+mako
+mysql-connector-python
+beautifulsoup4
+html5lib

@@ -1,15 +1,16 @@
 import os
 import cherrypy
 from mako.lookup import TemplateLookup
-import sqlite3
 import const
 import interface
 import time
+import contextlib
+import mysql.connector
 
-# def connect():
-#     return contextlib.closing(mysql.connector.connect(**const.db_config))
 def connect():
-    return sqlite3.connect('db.sqlite3')
+    return contextlib.closing(mysql.connector.connect(**const.db_config))
+#def connect():
+#    return sqlite3.connect('db.sqlite3')
 def auth():
     if 'uid' not in cherrypy.session  or 'username' not in cherrypy.session:
         raise cherrypy.HTTPRedirect('/login')
@@ -47,7 +48,7 @@ class Bridge:
 
         with connect() as db:
             cur=db.cursor()
-            cur.execute('select id,passhash from users where username=? and disabled=0',[username])
+            cur.execute('select id,passhash from users where username=%s and disabled=0',[username])
             result=cur.fetchone()
             if result:
                 if result[1]==const.hashed(username,password):
@@ -84,7 +85,7 @@ class Bridge:
         with connect() as db:
             cur=db.cursor()
             cur.execute(
-                "insert into submits (time, uid, hustid, probid, source, status) values (datetime('now','localtime'),?,?,?,?,?)",
+                "insert into submits (time, uid, hustid, probid, source, status) values (NOW(),%s,%s,%s,%s,%s)",
                 [cherrypy.session['uid'],hust.submit(probid,source),probid,source,'已提交']
             )
             db.commit()
@@ -96,14 +97,14 @@ class Bridge:
         subid=int(subid)
         with connect() as db:
             cur=db.cursor()
-            cur.execute('select time,hustid,source,status,probid,uid from submits where id=?',[subid])
+            cur.execute('select time,hustid,source,status,probid,uid from submits where id=%s',[subid])
             result=cur.fetchone()
             if result:
                 time,hustid,source,status,probid,uid=result
                 if uid!=cherrypy.session['uid']:
                     source="/*************************\n  你只能查看你自己的代码\n*************************/"
 
-                cur.execute('select username from users where id=?',[uid])
+                cur.execute('select username from users where id=%s',[uid])
                 return lookup.get_template('detail.html').render(
                     time=time,hustid=hustid,source=source,status=status,
                     probid=probid,username=(cur.fetchone() or ['???'])[0]
@@ -131,20 +132,20 @@ class Bridge:
         hust=interface.Hust(const.oj_config)
         with connect() as db:
             cur=db.cursor()
-            cur.execute('select id from submits where hustid=?',[hustid])
+            cur.execute('select id from submits where hustid=%s',[hustid])
             result=cur.fetchone()
             if result:
                 subid=result[0]
                 source=hust.get_source(hustid)
                 status=hust.get_status(source)
-                cur.execute('update submits set source=?, status=? where id=?',[source,proc_status(),subid])
+                cur.execute('update submits set source=%s, status=%s where id=%s',[source,proc_status(),subid])
                 db.commit()
                 raise cherrypy.HTTPRedirect('/detail/%d'%subid)
             else:
                 return 'No such submission in database.'
 
     @cherrypy.expose()
-    def passwd(self,uid=None,oldpw=None,newpw=None):
+    def passwd(self,oldpw=None,newpw=None):
         auth()
         username=cherrypy.session['username']
         uid=cherrypy.session['uid']
@@ -153,18 +154,18 @@ class Bridge:
 
         with connect() as db:
             cur=db.cursor()
-            cur.execute('select passhash from users where id=?',[uid])
+            cur.execute('select passhash from users where id=%s',[uid])
             res=cur.fetchone()
             if not res:
                 return lookup.get_template('passwd.html').render(username=username,error='用户不存在')
             elif res[0]!=const.hashed(username,oldpw):
                 return lookup.get_template('passwd.html').render(username=username,error='原密码错误')
             else:
-                cur.execute('update users set passhash=? where id=?',[const.hashed(username,newpw),uid])
+                cur.execute('update users set passhash=%s where id=%s',[const.hashed(username,newpw),uid])
                 db.commit()
                 raise cherrypy.InternalRedirect('/logout')
 
-cherrypy.quickstart(Bridge(),'/',{
+conf={
     'global': {
         'engine.autoreload.on':False,
         # 'request.show_tracebacks': False,
@@ -181,4 +182,8 @@ cherrypy.quickstart(Bridge(),'/',{
         'tools.staticdir.on':True,
         'tools.staticdir.dir':os.path.join(os.getcwd(),'static'),
     },
-})
+}
+if __name__=='__main__':
+    cherrypy.quickstart(Bridge(),'/',conf)
+else:
+    wsgi_app=cherrypy.Application(Bridge(),'/',conf)
