@@ -1,9 +1,9 @@
 #coding=utf-8
 
 import os
-if 'BRIDGE_SECRET' in os.environ:
+if 'APPSETTING_BRIDGE_SECRET' in os.environ:
     import json
-    db_config,oj_config=json.dumps(os.environ['BRIDGE_SECRET'])
+    db_config,oj_config=json.loads(os.environ['APPSETTING_BRIDGE_SECRET'])
 else:
     from secret import db_config,oj_config
 
