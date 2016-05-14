@@ -7,6 +7,9 @@ import time
 import contextlib
 import mysql.connector
 
+import mysql_session
+cherrypy.lib.sessions.MysqlSession = mysql_session.MysqlSession
+
 def connect():
     return contextlib.closing(mysql.connector.connect(**const.db_config))
 #def connect():
@@ -177,8 +180,10 @@ conf={
     '/': {
         'tools.gzip.on': True,
         'tools.sessions.on': True,
+        'tools.sessions.storage_type' : 'mysql',
     },
     '/static': {
+        'tools.sessions.on': False,
         'tools.staticdir.on':True,
         'tools.staticdir.dir':os.path.join(os.getcwd(),'static'),
     },
