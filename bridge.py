@@ -74,11 +74,14 @@ class Bridge:
         raise cherrypy.HTTPRedirect('/login')
 
     @cherrypy.expose()
-    def problem(self,probid):
+    def problem(self,probid,content=False):
         auth()
         probid=int(probid)
-        hust=interface.Hust(const.oj_config)
-        return lookup.get_template('problem.html').render(probid=probid,text=hust.get_problem(probid))
+        if content:
+            hust=interface.Hust(const.oj_config)
+            return hust.get_problem(probid)
+        else:
+            return lookup.get_template('problem.html').render(probid=probid)
 
     @cherrypy.expose()
     def submit(self,probid,source):

@@ -12,7 +12,7 @@
       <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
     <style>
-        .hust-html>center:first-child>a {
+        #hust-html>center:first-child>a {
             display: none;
         }
         .fullheight {
@@ -25,6 +25,7 @@
             $('#submit-form').submit();
         }
         $(function() {
+            $('#hust-html').load('?content=1');
             $('img').error(function(e) {
                 var url=$(e.target).attr('src');
                 if(url.indexOf('/')===0)
@@ -37,7 +38,7 @@
 </head>
 <body class="fullheight"><div class="container fullheight">
     <div class="col-lg-6 fullheight" style="overflow: auto;">
-        <div class="hust-html" style="padding-bottom: 30%">${text}</div>
+        <div id="hust-html" style="padding-bottom: 30%">加载中……</div>
     </div>
     <div class="col-lg-6 fullheight">
         <div class="panel panel-default" style="margin: 20px 0 20px 0">

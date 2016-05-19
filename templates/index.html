@@ -25,6 +25,10 @@
             return 'RUNN'
         else:
             return 'WTF'
+    
+    def real(code):
+        a,b,c=code.partition('****************************************************************/')
+        return c if b else a
 %>
 <html lang="zh-cn">
 <head>
@@ -83,7 +87,7 @@
                     <td class="${'text-primary' if submit['username']==username else ''}">${submit['username']|h}</td>
                     <td>${submit['probid']|h}</td>
                     <td class="result-${proc(submit['status'])}">${submit['status']|h}</td>
-                    <td>${len(submit['source'])} 字节， ${submit['source'].count('\n')+1} 行</td>
+                    <td>${len(real(submit['source']))} 字节， ${real(submit['source']).count('\n')+1} 行</td>
                 </tr>
             % endfor
         </tbody>
