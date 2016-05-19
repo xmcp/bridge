@@ -89,6 +89,7 @@ class Bridge:
         probid=int(probid)
         hust=interface.Hust(const.oj_config)
         with connect() as db:
+            db.time_zone='+08:00'
             cur=db.cursor()
             cur.execute(
                 "insert into submits (time, uid, hustid, probid, source, status) values (NOW(),%s,%s,%s,%s,%s)",
