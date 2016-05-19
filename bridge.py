@@ -46,6 +46,13 @@ class Bridge:
 
     @cherrypy.expose()
     def login(self,username=None,password=None):
+        try:
+            auth()
+        except cherrypy.HTTPRedirect:
+            pass
+        else: #already logged in
+            raise cherrypy.HTTPRedirect('/')
+        
         if not username or not password:
             return lookup.get_template('login.html').render(error=None)
 
@@ -108,7 +115,7 @@ class Bridge:
             result=cur.fetchone()
             if result:
                 time,hustid,source,status,probid,uid=result
-                if uid!=cherrypy.session['uid']:
+                if cherrypy.session['username']!='admin' and uid!=cherrypy.session['uid']:
                     source="/*************************\n  你只能查看你自己的代码\n*************************/"
 
                 cur.execute('select username from users where id=%s',[uid])
