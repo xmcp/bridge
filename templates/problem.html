@@ -25,22 +25,23 @@
             $('#submit-form').submit();
         }
         $(function() {
-            $('#hust-html').load('/problem/${probid|u}?content=1');
-            $('img').error(function(e) {
-                var url=$(e.target).attr('src');
-                if(url.indexOf('/')===0)
-                    e.target.src='http://www.lydsy.com'+url;
-                else
-                    e.target.src='http://www.lydsy.com/JudgeOnline/'+url;
+            $('#hust-html').load('/problem/${probid|u}?content=1',function() {
+                $('#hust-html img').error(function(e) {
+                    var url=$(e.target).attr('src');
+                    if(url.indexOf('/')===0)
+                        e.target.src='http://www.lydsy.com'+url;
+                    else
+                        e.target.src='http://www.lydsy.com/JudgeOnline/'+url;
+                });
             });
         });
     </script>
 </head>
 <body class="fullheight"><div class="container fullheight">
-    <div class="col-lg-6 fullheight" style="overflow: auto;">
+    <div class="col-lg-7 fullheight" style="overflow: auto;">
         <div id="hust-html" style="padding-bottom: 30%">加载中……</div>
     </div>
-    <div class="col-lg-6 fullheight">
+    <div class="col-lg-5 fullheight">
         <div class="panel panel-default" style="margin: 20px 0 20px 0">
             <div class="panel-heading">提交到 ${probid|h}</div>
             <div class="panel-body">
