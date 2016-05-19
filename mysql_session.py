@@ -5,6 +5,10 @@ import threading
 from cherrypy.lib.sessions import Session
 import const
 import mysql.connector
+import contextlib
+
+def connect():
+    return contextlib.closing(mysql.connector.connect(**const.db_config))
 
 class MysqlSession(Session):
 
@@ -36,26 +40,27 @@ class MysqlSession(Session):
         for k, v in kwargs.items():
             setattr(cls, k, v)
 
-        cls.db = mysql.connector.connect(**const.db_config)
         cls.locks={}
 
     def cls__del__(self):
-        self.db.commit()
+        pass
 
     def _exists(self):
         # Select session data from table
-        cursor=self.db.cursor()
-        cursor.execute('select data, expiration_time from session '
-                            'where id=%s', (self.id,))
-        rows = cursor.fetchall()
+        with connect() as db:
+            cursor=db.cursor()
+            cursor.execute('select data, expiration_time from session '
+                                'where id=%s', (self.id,))
+            rows = cursor.fetchall()
         return bool(rows)
 
     def _load(self):
         # Select session data from table
-        cursor=self.db.cursor()
-        cursor.execute('select data, expiration_time from session '
-                            'where id=%s', (self.id,))
-        rows = cursor.fetchall()
+        with connect() as db:
+            cursor=db.cursor()
+            cursor.execute('select data, expiration_time from session '
+                                'where id=%s', (self.id,))
+            rows = cursor.fetchall()
         if not rows:
             return None
 
@@ -65,13 +70,15 @@ class MysqlSession(Session):
 
     def _save(self, expiration_time):
         pickled_data = pickle.dumps(self._data, self.pickle_protocol)
-        self.db.cursor().execute('replace into session (data,expiration_time,id) values (%s,%s,%s)',
-                            (pickled_data, expiration_time, self.id))
-        self.db.commit()
+        with connect() as db:
+            db.cursor().execute('replace into session (data,expiration_time,id) values (%s,%s,%s)',
+                                (pickled_data, expiration_time, self.id))
+            db.commit()
 
     def _delete(self):
-        self.db.cursor().execute('delete from session where id=%s', (self.id,))
-        self.db.commit()
+        with connect() as db:
+            db.cursor().execute('delete from session where id=%s', (self.id,))
+            db.commit()
 
     def acquire_lock(self):
         """Acquire an exclusive lock on the currently-loaded session data."""
@@ -85,6 +92,7 @@ class MysqlSession(Session):
 
     def clean_up(self):
         """Clean up expired sessions."""
-        self.db.cursor().execute('delete from session where expiration_time < %s',
-                            (self.now(),))
-        self.db.commit()
+        with connect() as db:
+            db.cursor().execute('delete from session where expiration_time < %s',
+                                (self.now(),))
+            db.commit()
