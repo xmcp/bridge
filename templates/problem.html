@@ -25,7 +25,7 @@
             $('#submit-form').submit();
         }
         $(function() {
-            $('#hust-html').load('?content=1');
+            $('#hust-html').load('/problem/${probid|u}?content=1');
             $('img').error(function(e) {
                 var url=$(e.target).attr('src');
                 if(url.indexOf('/')===0)

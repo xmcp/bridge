@@ -28,7 +28,7 @@
     
     def real(code):
         a,b,c=code.partition('****************************************************************/')
-        return c if b else a
+        return c[1:] if b else a
 %>
 <html lang="zh-cn">
 <head>
